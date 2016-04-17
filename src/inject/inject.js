@@ -7,13 +7,10 @@ api call event for all valid links is done
 add warning html and Css to link child if link result is bad
 	add link child if it is not there
 	update link child html if it is there
-minimize event listen to only links for performance
-show loading, show safe and fade out  else show warning and tooltip 
-check if url format is valid
-gApi offline, bad response, only for 200 etc use cases
-settings for on and off
-remove jquery
-change icon
+people issues with norton safe search
+-makes search slow
+-changes default search engine, people want google not ask
+-shows adware
 
 
 */
@@ -22,11 +19,12 @@ change icon
 var elmMap ={};
 var imgUrl = {safe:'img/safe.png',unsafe:'img/unsafe.png',loading:'img/loading.gif'}
 var statusImgClass = "safeLinksResult"
+var timer;
 
-
-// Mouse listener for any move event on the current document.
+// Mouse listener for any mouse enter event on the current document.
 document.addEventListener('mouseover', function (e) {
-  var srcElement = e.srcElement;
+
+var srcElement = e.srcElement;
   var href = srcElement.href;
   // Lets check if our underlying element is a LINK.
   if (srcElement.nodeName != 'A') {
@@ -54,7 +52,11 @@ document.addEventListener('mouseover', function (e) {
 }, false);
 
 
+//complements mouse enter event so execute only if mouseover for x seconds
+// document.addEventListener('mouseleave', function (e) {
 
+// 	clearInterval(timer);
+// });
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	
@@ -63,12 +65,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 	//get the target link
 	var target  = request.eid;
 	// update img source on link status
+	console.log(request);
 	var source = (request.result.status==true)? imgUrl.safe : imgUrl.unsafe ;
 	//update the source of the image
 	img.setAttribute('src', chrome.extension.getURL(source));
+	img.setAttribute('alt', request.result.msg);
 	updateChild(target,img)
 	//wait till 5 seconds and cleanup/delete the DOM status
-	setTimeout(function() { deleteNode(img); }, 3000);
+	setTimeout(function() { deleteNode(img); }, 1400);
     //clean up from the element map 
 	//elmMap[eid] = undefined;
 	delete elmMap[target];
